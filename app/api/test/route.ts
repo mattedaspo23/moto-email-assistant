@@ -1,6 +1,10 @@
 import { testImapConnection } from '@/lib/imap-client'
 import { verifySmtpConnection } from '@/lib/smtp-sender'
-import { getSupabaseAdmin } from '@/lib/supabase'
+import {
+  getConfiguredTables,
+  getTableStatus,
+  pingSupabaseAuth,
+} from '@/lib/db-adapter'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -11,21 +15,25 @@ function getErrorMessage(error: unknown) {
 
 export async function GET() {
   const results: Record<string, unknown> = {}
-  const motoTable = process.env.MOTO_TABLE ?? 'moto'
+  const tables = getConfiguredTables()
 
   try {
-    const { error, count } = await getSupabaseAdmin()
-      .from(motoTable)
-      .select('*', { count: 'exact', head: true })
-
-    if (error) {
-      throw error
+    const auth = await pingSupabaseAuth()
+    const tableResults = {
+      moto: await getTableStatus(tables.moto),
+      incoming: await getTableStatus(tables.incoming),
+      reply: await getTableStatus(tables.reply),
     }
+    const missingTables = Object.entries(tableResults)
+      .filter(([, value]) => !value.ok)
+      .map(([key]) => key)
 
     results.supabase = {
-      ok: true,
-      table: motoTable,
-      rowCount: count ?? 0,
+      ok: missingTables.length === 0,
+      auth,
+      tables,
+      tableResults,
+      missingTables,
     }
   } catch (error) {
     results.supabase = {

@@ -105,15 +105,13 @@ export async function POST(request: Request) {
       },
     })
 
-    if (error) {
-      throw error
-    }
-
     return Response.json({
       success: true,
       messageId: info.messageId,
       templateName: reply.templateName,
       availabilitySource,
+      logSaved: !error,
+      warning: error?.message ?? null,
     })
   } catch (error) {
     return Response.json(

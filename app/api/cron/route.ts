@@ -10,7 +10,24 @@ function getErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : 'Unknown error'
 }
 
-export async function GET() {
+function isAuthorized(request: Request) {
+  const cronSecret = process.env.CRON_SECRET
+
+  if (!cronSecret) {
+    return true
+  }
+
+  return request.headers.get('authorization') === `Bearer ${cronSecret}`
+}
+
+async function handleCron(request: Request) {
+  if (!isAuthorized(request)) {
+    return Response.json(
+      { success: false, error: 'Unauthorized' },
+      { status: 401 }
+    )
+  }
+
   const schedule = process.env.CRON_SCHEDULE ?? '*/5 * * * *'
 
   if (!cron.validate(schedule)) {
@@ -60,4 +77,12 @@ export async function GET() {
       { status: 500 }
     )
   }
+}
+
+export async function GET(request: Request) {
+  return handleCron(request)
+}
+
+export async function POST(request: Request) {
+  return handleCron(request)
 }

@@ -24,12 +24,20 @@ function parseBoolean(value: string | undefined, fallback: boolean) {
 }
 
 function getImapConfig(): Imap.Config {
+  const rejectUnauthorized = parseBoolean(
+    process.env.IMAP_TLS_REJECT_UNAUTHORIZED,
+    true
+  )
+
   return {
     user: requireEnv('IMAP_USER'),
     password: requireEnv('IMAP_PASSWORD'),
     host: requireEnv('IMAP_HOST'),
     port: Number(process.env.IMAP_PORT ?? 993),
     tls: parseBoolean(process.env.IMAP_TLS, true),
+    tlsOptions: {
+      rejectUnauthorized,
+    },
   }
 }
 
