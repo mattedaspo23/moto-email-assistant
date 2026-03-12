@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="it">
+  <body>
+    <p>Ciao {{ customerName }},</p>
+    <p>
+      al momento la moto <strong>{{ motoName }}</strong> non e disponibile{% if
+      requestedDate %} per la data del {{ requestedDate }}{% endif %}.
+    </p>
+    {% if notes %}
+    <p>Possiamo comunque aiutarti con questa nota: {{ notes }}</p>
+    {% endif %}
+    <p>
+      Se vuoi, rispondi a questa email e ti proponiamo un'alternativa o una nuova
+      data.
+    </p>
+    <p>{{ signature }}</p>
+  </body>
+</html>

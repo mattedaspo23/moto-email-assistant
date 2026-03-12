@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="it">
+  <body>
+    <p>Ciao {{ customerName }},</p>
+    <p>
+      la moto <strong>{{ motoName }}</strong> e disponibile{% if requestedDate %}
+      per l'appuntamento del {{ requestedDate }}{% endif %}.
+    </p>
+    {% if notes %}
+    <p>Note operative: {{ notes }}</p>
+    {% endif %}
+    <p>Rispondi a questa email per confermare o proporre un orario alternativo.</p>
+    <p>{{ signature }}</p>
+  </body>
+</html>
